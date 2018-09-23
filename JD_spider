@@ -1,0 +1,139 @@
+#-*-coding:utf-8-*-
+
+#2018-9-22
+
+#抓取京东商品列表页面信息()
+
+#目标:抓取京东商品列表页面信息:售价\评论数,商品名称-----以手机为例
+
+import requests
+import codecs
+from lxml import etree
+import time
+import csv
+
+def crow_first(n):
+    url = 'https://search.jd.com/Search?keyword=%E6%89%8B%E6%9C%BA&enc=utf-8&wq=%E6%89%8B%E6%9C%BA&pvid=66946e4c3a0d4e94b37ab213aaa6f613&page='+str(2*n-1)
+
+
+    header = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.99 Safari/537.36"}
+
+    r = requests.get(url,headers=header)
+    # 指定编码
+    r.encoding='utf-8'
+    # 定位到每一个商品标签
+    #print r.text
+    html1 = etree.HTML(r.text)
+
+    goods_data = html1.xpath('//ul/li[contains(@class,"gl-item")]')
+    print '============================'
+    print goods_data
+    print '============================'
+    f = codecs.open('jingdong.csv','a',encoding='utf-8')
+    # f = open('jingdong.txt','w')
+    # print goods_data
+    # good_list = []
+    for good_data in goods_data:
+        g_price = good_data.xpath('.//div[@class="p-price"]/strong/i/text()')
+        # print g_price
+        g_comment = good_data.xpath('.//div[@class="p-commit"]/strong/a/text()')[0]
+        g_name = good_data.xpath('.//div[@class="p-name p-name-type-2"]/a/em/text()')[0]
+        #print g_price,g_comment,g_name
+        # print g_comment
+        print g_name
+        # good_list = [g_price,g_comment,g_price]
+        # print good_list
+        # f.write(good_list)
+        # f.write(g_comment)
+        try:
+            print type(g_price)
+            print g_price
+            print g_name
+            print type(g_name)
+            print type(g_comment)
+            # f.write(u'价格:'+g_price[0])
+            # f.write('评价:'+str(g_comment))
+            # f.write(g_name+g_price[0]+ '评价数:' +g_comment+'\n')
+            # f.write(g_comment+'\n')
+            f.write(u'商品名称:'+g_name+'    '+u'价格:'+g_price[0]+'   '+u'评论数:'+g_comment+'\n')
+        except Exception as e:
+            print 'e.message:',e.message
+
+    f.close()
+
+def crow_last(n):
+    b = time.time()
+    b1='%0.5f'%b
+    #url 读取方式有错误
+    # url = 'https://search.jd.com/s_new.php?keyword=%E6%89%8B%E6%9C%BA&enc=utf-8&qrst=1&rt=1&stop=1&vt=2&wq=%E6%89%8B%E6%9C%BA&cid2=653&cid3=655&page='+str(2*n)+'&s='+str(48*n-20)+'&scrolling=y&log_id='+str(b1)
+    url = 'https://search.jd.com/s_new.php?keyword=%E6%89%8B%E6%9C%BA&enc=utf-8&qrst=1&rt=1&stop=1&vt=2&wq=%E6%89%8B%E6%9C%BA&cid2=653&cid3=655&page=4&s=84&scrolling=y&log_id=1537063123.46518&tpl=3_M&show_items=7123633,4768461,3234250,3889169,31426982482,4971133,8636676,7154346,7651951,6737464,5963066,7920206,6305258,5284273,7336429,7320808,100000178749,5001209,5464295,4120319,7367120,31430342752,4577217,8638898,7357933,29199143054,3749089,2917215,8717360,6138263'
+
+    # header = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.99 Safari/537.36"}
+
+    header = {'authority': 'search.jd.com',
+            'method': 'GET',
+            'path': '/s_new.php?keyword=%E6%89%8B%E6%9C%BA&enc=utf-8&qrst=1&rt=1&stop=1&vt=2&wq=%E6%89%8B%E6%9C%BA',
+            'scheme': 'https',
+            'referer': 'https://search.jd.com/Search?keyword=%E6%89%8B%E6%9C%BA&enc=utf-8&qrst=1&rt=1&stop=1&vt=2&wq=%E6%89%8B%E6%9C%BA&cid2=653&cid3=655&page=3&s=58&click=0',
+            'user-agent': 'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.139 Safari/537.36',
+            'x-requested-with': 'XMLHttpRequest',
+            'Cookie': 'qrsc=3; pinId=RAGa4xMoVrs; xtest=1210.cf6b6759; ipLocation=%u5E7F%u4E1C; _jrda=5; TrackID=1aUdbc9HHS2MdEzabuYEyED1iDJaLWwBAfGBfyIHJZCLWKfWaB_KHKIMX9Vj9_2wUakxuSLAO9AFtB2U0SsAD-mXIh5rIfuDiSHSNhZcsJvg; shshshfpa=17943c91-d534-104f-a035-6e1719740bb6-1525571955; shshshfpb=2f200f7c5265e4af999b95b20d90e6618559f7251020a80ea1aee61500; cn=0; 3AB9D23F7A4B3C9B=QFOFIDQSIC7TZDQ7U4RPNYNFQN7S26SFCQQGTC3YU5UZQJZUBNPEXMX7O3R7SIRBTTJ72AXC4S3IJ46ESBLTNHD37U; ipLoc-djd=19-1607-3638-3638.608841570; __jdu=930036140; user-key=31a7628c-a9b2-44b0-8147-f10a9e597d6f; areaId=19; __jdv=122270672|direct|-|none|-|1529893590075; PCSYCityID=25; mt_xid=V2_52007VwsQU1xaVVoaSClUA2YLEAdbWk5YSk9MQAA0BBZOVQ0ADwNLGlUAZwQXVQpaAlkvShhcDHsCFU5eXENaGkIZWg5nAyJQbVhiWR9BGlUNZwoWYl1dVF0%3D; __jdc=122270672; shshshfp=72ec41b59960ea9a26956307465948f6; rkv=V0700; __jda=122270672.930036140.-.1529979524.1529984840.85; __jdb=122270672.1.930036140|85.1529984840; shshshsID=f797fbad20f4e576e9c30d1c381ecbb1_1_1529984840145'
+
+            }
+
+    r = requests.get(url, headers=header)
+    # 指定编码
+    r.encoding = 'utf-8'
+    # 定位到每一个商品标签
+
+    # print r.text
+    # print url
+    html1 = etree.HTML(r.text)
+
+    goods_data = html1.xpath('//li[contains(@class,"gl-item")]')
+    print '==================================='
+    print goods_data
+    print '==================================='
+    f = codecs.open('jingdong1.csv', 'w', encoding='utf-8')
+    for good_data in goods_data:
+        g_price = good_data.xpath('.//div[@class="p-price"]/strong/i/text()')
+        print '==================================='
+        print g_price
+        print '==================================='
+        g_comment = good_data.xpath('.//div[@class="p-commit"]/strong/a/text()')[0]
+        g_name = good_data.xpath('.//div[@class="p-name p-name-type-2"]/a/em/text()')[0]
+        # print g_price,g_comment,g_name
+        # print g_comment
+        print g_name
+        # good_list = [g_price,g_comment,g_price]
+        # print good_list
+        # f.write(good_list)
+        # f.write(g_comment)
+        try:
+            print type(g_price)
+            print g_price
+            print g_name
+            print type(g_name)
+            print type(g_comment)
+            # f.write(u'价格:'+g_price[0])
+            # f.write('评价:'+str(g_comment))
+            # f.write(g_name+g_price[0]+ '评价数:' +g_comment+'\n')
+            # f.write(g_comment+'\n')
+            f.write(u'商品名称:' + g_name + '    ' + u'价格:' + g_price[0] + '   ' + u'评论数:' + g_comment + '\n')
+        except Exception as e:
+            print 'e.message:', e.message
+
+    f.close()
+
+if __name__ == '__main__':
+    for i in range(1,2):
+        print ('****************************************')
+        try:
+            print '第%s页,上半段'%str(i)
+            crow_first(i)
+            print '  完成'
+            print '第%s页,下半段'%str(i)
+            crow_last(i)
+        except Exception as e:
+            print e
+    print '----------全部页面爬取完成-----'
